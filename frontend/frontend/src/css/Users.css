@@ -1,0 +1,263 @@
+
+.users-page {
+  padding: 20px;
+}
+
+.users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.users-header h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.add-user-btn {
+  padding: 10px 18px;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.add-user-btn:hover {
+  background: #333;
+}
+
+/* Modal overlay */
+.user-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 15px;
+  box-sizing: border-box;
+}
+
+/* Modal box */
+.user-modal {
+  background: #fff;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 25px;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.user-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.user-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.user-modal-header button {
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 22px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+
+.user-modal-header button:hover {
+  background: #333;
+}
+
+/* Add/Edit and Change Password forms */
+.user-modal .user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+  border: none;
+  background: #fff;
+}
+
+.user-modal .user-form > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.user-form label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.user-form input,
+.user-form select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  margin: 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  background: #fff;
+}
+
+.user-form input:focus,
+.user-form select:focus {
+  outline: none;
+  border-color: #666;
+}
+
+.user-modal .user-form button {
+  width: fit-content;
+  padding: 10px 16px;
+  margin: 0;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.user-modal .user-form button:hover {
+  background: #333;
+}
+
+/* Table */
+.users-table-container {
+  width: 100%;
+  overflow-x: auto;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+.users-table th,
+.users-table td {
+  padding: 13px 15px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.users-table th {
+  background: #f5f5f5;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.users-table td {
+  font-size: 14px;
+  color: #444;
+}
+
+.users-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.users-table tbody tr:hover {
+  background: #fafafa;
+}
+
+/* Role badges */
+.role-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.role-admin {
+  background: #eee;
+  color: #333;
+}
+
+.role-staff {
+  background: #f3f3f3;
+  color: #333;
+}
+
+/* Action buttons */
+.user-actions {
+  white-space: nowrap;
+}
+
+.user-actions button {
+  padding: 6px 10px;
+  margin-right: 6px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.user-actions button:hover {
+  opacity: 0.8;
+}
+
+.edit-btn {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.change-password-btn {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.delete-btn {
+  background: #f5d6d6;
+  color: #a00;
+  margin-right: 0;
+}
+
+.no-users {
+  text-align: center !important;
+  padding: 30px !important;
+  color: #888;
+  font-size: 14px;
+}
+
+/* Responsive layout */
+@media (max-width: 600px) {
+  .users-page {
+    padding: 10px;
+  }
+
+  .user-modal {
+    padding: 20px;
+  }
+
+  .users-table {
+    white-space: nowrap;
+  }
+
+  .user-actions button {
+    margin-bottom: 5px;
+  }
+}

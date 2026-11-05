@@ -1,0 +1,141 @@
+.reports-page {
+  padding: 20px;
+}
+
+.reports-page h2 {
+  margin-bottom: 20px;
+}
+
+.reports-page label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.reports-page input {
+  padding: 9px 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.reports-page input:focus {
+  outline: none;
+  border-color: #666;
+}
+
+.reports-page > button {
+  padding: 10px 18px;
+  margin-bottom: 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #333;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.reports-page > button:hover {
+  background-color: #555;
+}
+.report-filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.report-filters > div {
+  margin-bottom: 0;
+}
+
+.report-filters input {
+  width: 100%;
+}
+.report-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.report-card {
+  padding: 15px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.report-card span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #777;
+}
+
+.report-card strong {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+.reports-table-container {
+  width: 100%;
+  overflow-x: auto;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.reports-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.reports-table th,
+.reports-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.reports-table th {
+  background-color: #f5f5f5;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.reports-table td {
+  font-size: 14px;
+  color: #444;
+}
+
+.reports-table tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.reports-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+@media (max-width: 600px) {
+  .reports-page {
+    padding: 10px;
+  }
+
+  .report-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .report-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .reports-table {
+    white-space: nowrap;
+  }
+}
