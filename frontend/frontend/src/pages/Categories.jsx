@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "../css/Categories.css";
 import { apiFetch } from "../utils/api";
 
@@ -11,46 +11,62 @@ const itemsPerPage = 10;
   const [editingCategory, setEditingCategory] = useState(null);
   const [formData, setFormData] = useState({ name: "" });
 
-  const fetchCategories = async () => {
-    try {
-      const response = await apiFetch(
-        "/api/categories",
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+const fetchCategories = useCallback(async () => {
+  try {
+    const response = await apiFetch("/api/categories", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to fetch categories");
-      }
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to fetch categories");
+    }
 
-      setCategories(data.data);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
+    return data.data;
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    return null;
+  }
+}, []);
+
+ useEffect(() => {
+  let cancelled = false;
+
+  const loadCategories = async () => {
+    const result = await fetchCategories();
+
+    if (!cancelled && result !== null) {
+      setCategories(result);
     }
   };
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  loadCategories();
 
-  useEffect(() => {
-  setCurrentPage(1);
-}, [categories.length]);
+  return () => {
+    cancelled = true;
+  };
+}, [fetchCategories]);
 
+  
 const totalPages = Math.ceil(categories.length / itemsPerPage);
 
-const startIndex = (currentPage - 1) * itemsPerPage;
+const safeCurrentPage = Math.min(
+  currentPage,
+  Math.max(totalPages, 1)
+);
+
+const startIndex = (safeCurrentPage - 1) * itemsPerPage;
 
 const paginatedCategories = categories.slice(
   startIndex,
   startIndex + itemsPerPage
 );
+
+
 
   const resetForm = () => {
     setFormData({ name: "" });
@@ -78,7 +94,11 @@ const paginatedCategories = categories.slice(
         throw new Error(data.message || "Failed to save category");
       }
 
-      await fetchCategories();
+      const updatedCategories = await fetchCategories();
+
+if (updatedCategories !== null) {
+  setCategories(updatedCategories);
+}
       resetForm();
     } catch (error) {
       console.error("Error saving category:", error);
@@ -107,7 +127,11 @@ const paginatedCategories = categories.slice(
       }
 
       alert("Category updated successfully");
-      await fetchCategories();
+     const updatedCategories = await fetchCategories();
+
+if (updatedCategories !== null) {
+  setCategories(updatedCategories);
+}
       resetForm();
     } catch (error) {
       console.error("Error updating category:", error);
@@ -137,7 +161,11 @@ const paginatedCategories = categories.slice(
       }
 
       alert("Category deleted successfully");
-      await fetchCategories();
+    const updatedCategories = await fetchCategories();
+
+if (updatedCategories !== null) {
+  setCategories(updatedCategories);
+}
     } catch (error) {
       console.error("Error deleting category:", error);
       alert(error.message);
@@ -272,20 +300,20 @@ const paginatedCategories = categories.slice(
           <div className="pagination-buttons">
             <button
               type="button"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((page) => page - 1)}
+              disabled={safeCurrentPage === 1}
+onClick={() => setCurrentPage(safeCurrentPage - 1)}
             >
               Previous
             </button>
 
             <span>
-              Page {currentPage} of {Math.max(totalPages, 1)}
+             Page {safeCurrentPage} of {Math.max(totalPages, 1)}
             </span>
 
             <button
               type="button"
-              disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage((page) => page + 1)}
+            disabled={safeCurrentPage >= totalPages}
+onClick={() => setCurrentPage(safeCurrentPage + 1)}
             >
               Next
             </button>

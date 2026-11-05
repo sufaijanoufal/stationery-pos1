@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -49,21 +49,7 @@ const toggleMenu = (menu) => {
   }));
 };
 
-useEffect(() => {
-  if (location.pathname.startsWith("/products") ||
-      location.pathname === "/categories") {
-    setOpenMenus((prev) => ({ ...prev, Products: true }));
-  }
 
-  if (location.pathname.startsWith("/purchases") ||
-      location.pathname === "/suppliers") {
-    setOpenMenus((prev) => ({ ...prev, Purchases: true }));
-  }
-
-  if (location.pathname.startsWith("/reports")) {
-    setOpenMenus((prev) => ({ ...prev, Reports: true }));
-  }
-}, [location.pathname]);
 
   return (
     <div className="app">

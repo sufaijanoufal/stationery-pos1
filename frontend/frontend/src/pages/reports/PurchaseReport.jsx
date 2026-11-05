@@ -32,7 +32,7 @@ purchaseReport?.purchases.forEach((purchase) => {
     }
 
     try {
-      const token = localStorage.getItem("token");
+    
 
       const response = await apiFetch(
         `/api/purchases/report?from=${fromDate}&to=${toDate}`,

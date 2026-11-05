@@ -21,24 +21,45 @@ const [passwordData, setPasswordData] = useState({
     role: "",
   });
 
-  const fetchUsers = async () => {
-    try {
-      const response = await apiFetch("/api/users",{
-        headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
-      });
+ const fetchUsers = async () => {
+  try {
+    const response = await apiFetch("/api/users", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
 
-      const data = await response.json();
-      setUsers(Array.isArray(data.data) ? data.data : []);
-    } catch (error) {
-      console.error("Error fetching users:", error);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to fetch users");
+    }
+
+    return Array.isArray(data.data) ? data.data : [];
+
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return null;
+  }
+};
+
+useEffect(() => {
+  let cancelled = false;
+
+  const loadUsers = async () => {
+    const result = await fetchUsers();
+
+    if (!cancelled && result !== null) {
+      setUsers(result);
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  loadUsers();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
 
   const handleSaveUser = async (e) => {
     e.preventDefault();
@@ -76,7 +97,11 @@ const [passwordData, setPasswordData] = useState({
 
       setShowForm(false);
 
-      fetchUsers();
+      const updatedUsers = await fetchUsers();
+
+if (updatedUsers !== null) {
+  setUsers(updatedUsers);
+}
     } catch (error) {
   console.error("Error saving user:", error);
   alert(error.message);
@@ -109,7 +134,11 @@ const [passwordData, setPasswordData] = useState({
 
       alert("User updated successfully");
 
-      await fetchUsers();
+      const updatedUsers = await fetchUsers();
+
+if (updatedUsers !== null) {
+  setUsers(updatedUsers);
+}
 
       setFormData({
         name: "",
@@ -157,7 +186,11 @@ const handleToggleUserStatus = async (user) => {
     }
 
     alert(`User ${action}d successfully`);
-    await fetchUsers();
+    const updatedUsers = await fetchUsers();
+
+if (updatedUsers !== null) {
+  setUsers(updatedUsers);
+}
   } catch (error) {
     console.error(`Error trying to ${action} user:`, error);
     alert(error.message);
@@ -189,7 +222,11 @@ const handleDeleteUser = async (user) => {
     }
 
     alert(data.message || "User permanently deleted");
-    await fetchUsers();
+    const updatedUsers = await fetchUsers();
+
+if (updatedUsers !== null) {
+  setUsers(updatedUsers);
+}
   } catch (error) {
     console.error("Error deleting user:", error);
     alert(error.message);

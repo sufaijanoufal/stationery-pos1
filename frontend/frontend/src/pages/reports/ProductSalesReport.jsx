@@ -56,8 +56,7 @@ const sortedProducts = Object.values(productTotals).sort(
     }
 
     try {
-      const token = localStorage.getItem("token");
-
+     
       const response = await apiFetch(
         `/api/sales/report?from=${fromDate}&to=${toDate}`,
         {

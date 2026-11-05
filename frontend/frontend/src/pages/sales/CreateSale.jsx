@@ -32,22 +32,21 @@ const [activeProductIndex, setActiveProductIndex] = useState(null);
 const barcodeInputRef = useRef(null);
 const savingRef = useRef(false);
 const [saving, setSaving] = useState(false);
-  useEffect(() => {
-    fetchProducts();
-      barcodeInputRef.current?.focus();
-  }, []);
+ 
 
-  const fetchProducts = async () => {
+ 
+
+ useEffect(() => {
+  let cancelled = false;
+
+  const loadProducts = async () => {
     try {
-      const response = await fetch(
-        "/api/products",
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      const response = await fetch("/api/products", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
       const data = await response.json();
 
@@ -55,12 +54,24 @@ const [saving, setSaving] = useState(false);
         throw new Error(data.message || "Failed to fetch products");
       }
 
-      setProducts(data.data || []);
+      if (!cancelled) {
+        setProducts(data.data || []);
+      }
     } catch (error) {
-      console.error("Error fetching products:", error);
-      alert(error.message);
+      if (!cancelled) {
+        console.error("Error fetching products:", error);
+        alert(error.message);
+      }
     }
   };
+
+  loadProducts();
+  barcodeInputRef.current?.focus();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
 const handleBarcodeScan = async (e) => {
   e.preventDefault();
 

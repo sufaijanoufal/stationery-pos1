@@ -39,26 +39,39 @@ const Expenses = () => {
   const [categoryFilter, setCategoryFilter] = useState("");
 
   const fetchExpenses = async () => {
-    try {
-      const response = await apiFetch(
-        "/api/expenses"
-      );
-      const data = await response.json();
+  try {
+    const response = await apiFetch("/api/expenses");
+    const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to fetch expenses");
-      }
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to fetch expenses");
+    }
 
-      setExpenses(data.data || []);
-    } catch (error) {
-      console.error("Error fetching expenses:", error);
-      alert(error.message || "Failed to fetch expenses");
+    return data.data || [];
+  } catch (error) {
+    console.error("Error fetching expenses:", error);
+    alert(error.message || "Failed to fetch expenses");
+    return null;
+  }
+};
+
+useEffect(() => {
+  let cancelled = false;
+
+  const loadExpenses = async () => {
+    const result = await fetchExpenses();
+
+    if (!cancelled && result !== null) {
+      setExpenses(result);
     }
   };
 
-  useEffect(() => {
-    fetchExpenses();
-  }, []);
+  loadExpenses();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
 
   const filteredExpenses = expenses.filter((expense) => {
     const date = new Date(expense.expenseDate);
@@ -123,8 +136,13 @@ const Expenses = () => {
       alert(isEditing ? "Expense updated successfully" : "Expense added successfully");
 
       resetForm();
-      await fetchExpenses();
-      setCurrentPage(1);
+     const updatedExpenses = await fetchExpenses();
+
+if (updatedExpenses !== null) {
+  setExpenses(updatedExpenses);
+}
+
+setCurrentPage(1);
     } catch (error) {
       console.error("Error saving expense:", error);
       alert(error.message || "Failed to save expense");
@@ -149,7 +167,11 @@ const Expenses = () => {
       }
 
       alert("Expense deleted successfully");
-      await fetchExpenses();
+      const updatedExpenses = await fetchExpenses();
+
+if (updatedExpenses !== null) {
+  setExpenses(updatedExpenses);
+}
     } catch (error) {
       console.error("Error deleting expense:", error);
       alert(error.message || "Failed to delete expense");

@@ -1,4 +1,4 @@
-import { useState ,useEffect } from "react";
+import { useState  } from "react";
 import { useNavigate } from "react-router-dom";
 
 
@@ -56,20 +56,22 @@ const PurchaseList = ({
       );
     });
 
-    useEffect(() => {
-      setCurrentPage(1);
-    }, [searchTerm, fromDate, toDate]);
+   
+  const totalPages = Math.ceil(
+  filteredPurchases.length / itemsPerPage
+);
 
-    const totalPages = Math.ceil(
-      filteredPurchases.length / itemsPerPage
-    );
+const safeCurrentPage = Math.min(
+  currentPage,
+  Math.max(totalPages, 1)
+);
 
-    const startIndex = (currentPage - 1) * itemsPerPage;
+const startIndex = (safeCurrentPage - 1) * itemsPerPage;
 
-    const paginatedPurchases = filteredPurchases.slice(
-      startIndex,
-      startIndex + itemsPerPage
-    );
+const paginatedPurchases = filteredPurchases.slice(
+  startIndex,
+  startIndex + itemsPerPage
+);
 
 return (
   <div className="purchases-table-container">
@@ -184,24 +186,19 @@ return (
         <div className="pagination-buttons">
           <button
             type="button"
-            disabled={currentPage === 1}
-            onClick={() =>
-              setCurrentPage((page) => page - 1)
-            }
+            disabled={safeCurrentPage === 1}
+onClick={() => setCurrentPage(safeCurrentPage - 1)}
           >
             Previous
           </button>
 
           <span>
-            Page {currentPage} of {Math.max(totalPages, 1)}
-          </span>
-
+           Page {safeCurrentPage} of {Math.max(totalPages, 1)}
+</span>
           <button
             type="button"
-            disabled={currentPage >= totalPages}
-            onClick={() =>
-              setCurrentPage((page) => page + 1)
-            }
+           disabled={safeCurrentPage >= totalPages}
+onClick={() => setCurrentPage(safeCurrentPage + 1)}
           >
             Next
           </button>

@@ -16,35 +16,54 @@ const itemsPerPage = 10;
         address: ""
     });
 
-    const fetchSuppliers = async () => {
-        try {
-            const response = await apiFetch('/api/suppliers',{
-                headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
-            });
-            const data = await response.json();
+   const fetchSuppliers = async () => {
+    try {
+        const response = await apiFetch('/api/suppliers', {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        });
 
-              if (!response.ok) {
-        throw new Error(data.message || "Failed to fetch suppliers");
-      }
-            setSuppliers(data.data);
-        }catch (error) {
-            console.error("Error fetching suppliers:", error);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Failed to fetch suppliers");
+        }
+
+        return data.data || [];
+
+    } catch (error) {
+        console.error("Error fetching suppliers:", error);
+        return null;
+    }
+};
+
+useEffect(() => {
+    let cancelled = false;
+
+    const loadSuppliers = async () => {
+        const result = await fetchSuppliers();
+
+        if (!cancelled && result !== null) {
+            setSuppliers(result);
         }
     };
 
-    useEffect(() => {
-        fetchSuppliers();
-    }, []);
+    loadSuppliers();
 
-    useEffect(() => {
-    setCurrentPage(1);
-}, [suppliers.length]);
+    return () => {
+        cancelled = true;
+    };
+}, []);
 
 const totalPages = Math.ceil(suppliers.length / itemsPerPage);
 
-const startIndex = (currentPage - 1) * itemsPerPage;
+const safeCurrentPage = Math.min(
+    currentPage,
+    Math.max(totalPages, 1)
+);
+
+const startIndex = (safeCurrentPage - 1) * itemsPerPage;
 
 const paginatedSuppliers = suppliers.slice(
     startIndex,
@@ -77,7 +96,12 @@ const paginatedSuppliers = suppliers.slice(
             });
 
             // Fetch updated supplier list
-            fetchSuppliers();
+            const updatedSuppliers = await fetchSuppliers();
+
+if (updatedSuppliers !== null) {
+    setSuppliers(updatedSuppliers);
+    setCurrentPage(1);
+}
             setShowForm(false); // Hide the form after saving
         } catch (error) {
             console.error("Error saving supplier:", error);
@@ -110,7 +134,12 @@ const paginatedSuppliers = suppliers.slice(
             });
 
             // Fetch updated supplier list
-            fetchSuppliers();
+            const updatedSuppliers = await fetchSuppliers();
+
+if (updatedSuppliers !== null) {
+    setSuppliers(updatedSuppliers);
+    setCurrentPage(1);
+}
             setEditingSupplier(null); // Clear the editing supplier state
             setShowForm(false); // Hide the form after updating
         } catch (error) {
@@ -132,7 +161,12 @@ const handleDeleteSupplier = async (id) => {
         }
     alert("Supplier deleted successfully!");
         // Fetch updated supplier list
-        fetchSuppliers();
+       const updatedSuppliers = await fetchSuppliers();
+
+if (updatedSuppliers !== null) {
+    setSuppliers(updatedSuppliers);
+    setCurrentPage(1);
+}
     } catch (error) {
         console.error("Error deleting supplier:", error);
         alert(error.message);
@@ -319,20 +353,20 @@ const handleDeleteSupplier = async (id) => {
         <div className="pagination-buttons">
           <button
             type="button"
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((page) => page - 1)}
+            disabled={safeCurrentPage === 1}
+onClick={() => setCurrentPage(safeCurrentPage - 1)}
           >
             Previous
           </button>
 
           <span>
-            Page {currentPage} of {Math.max(totalPages, 1)}
+            Page {safeCurrentPage} of {Math.max(totalPages, 1)}
           </span>
 
           <button
             type="button"
-            disabled={currentPage >= totalPages}
-            onClick={() => setCurrentPage((page) => page + 1)}
+           disabled={safeCurrentPage >= totalPages}
+onClick={() => setCurrentPage(safeCurrentPage + 1)}
           >
             Next
           </button>

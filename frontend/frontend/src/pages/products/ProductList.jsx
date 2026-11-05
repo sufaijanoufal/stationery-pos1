@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function ProductList({
@@ -18,22 +18,23 @@ function ProductList({
 const [currentPage, setCurrentPage] = useState(1);
 const itemsPerPage = 10;
 
-useEffect(() => {
-  setCurrentPage(1);
-}, [searchTerm]);
+
 
 const totalPages = Math.ceil(
   filteredProducts.length / itemsPerPage
 );
 
-const startIndex = (currentPage - 1) * itemsPerPage;
+const safeCurrentPage = Math.min(
+  currentPage,
+  Math.max(totalPages, 1)
+);
+
+const startIndex = (safeCurrentPage - 1) * itemsPerPage;
 
 const paginatedProducts = filteredProducts.slice(
   startIndex,
   startIndex + itemsPerPage
 );
-
-
 
   const lowStockCount = products.filter(
     (product) => product.currentStock <= product.minimumStock
@@ -126,24 +127,20 @@ const paginatedProducts = filteredProducts.slice(
     <div className="pagination-buttons">
       <button
         type="button"
-        disabled={currentPage === 1}
-        onClick={() =>
-          setCurrentPage((page) => page - 1)
-        }
+        disabled={safeCurrentPage === 1}
+onClick={() => setCurrentPage(safeCurrentPage - 1)}
       >
         Previous
       </button>
 
       <span>
-        Page {currentPage} of {Math.max(totalPages, 1)}
+        Page {safeCurrentPage} of {Math.max(totalPages, 1)}
       </span>
 
       <button
         type="button"
-        disabled={currentPage >= totalPages}
-        onClick={() =>
-          setCurrentPage((page) => page + 1)
-        }
+       disabled={safeCurrentPage >= totalPages}
+onClick={() => setCurrentPage(safeCurrentPage + 1)}
       >
         Next
       </button>

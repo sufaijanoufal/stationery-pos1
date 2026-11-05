@@ -11,46 +11,55 @@ const SalesList = ({ user }) => {
   const [productName, setProductName] = useState("");
 const [dateFrom, setDateFrom] = useState("");
 const [dateTo, setDateTo] = useState("");
-const [filteredSales, setFilteredSales] = useState([]);
 const [currentPage, setCurrentPage] = useState(1);
 const salesPerPage = 10;
 
 
-  const fetchSales = async () => {
-    try {
-      const response = await apiFetch("/api/sales", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+ const fetchSales = async () => {
+  try {
+    const response = await apiFetch("/api/sales", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch sales");
-      }
+    if (!response.ok) {
+      throw new Error("Failed to fetch sales");
+    }
 
-      const data = await response.json();
-      setSales(data.data);
-    } catch (error) {
-      console.error("Error fetching sales:", error);
+    const data = await response.json();
+    return data.data || [];
+  } catch (error) {
+    console.error("Error fetching sales:", error);
+    return null;
+  }
+};
+
+useEffect(() => {
+  let cancelled = false;
+
+  const loadSales = async () => {
+    const data = await fetchSales();
+
+    if (!cancelled && data !== null) {
+      setSales(data);
     }
   };
 
-  useEffect(() => {
-    fetchSales();
-  }, []);
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [productName, dateFrom, dateTo]);
+  loadSales();
 
-useEffect(() => {
-  const filtered = [...sales]
-    .sort(
-      (a, b) =>
-           new Date(b.createdAt || b.saleDate) -
-    new Date(a.createdAt || a.saleDate)
-    )
-    .filter((sale) => {
-
+  return () => {
+    cancelled = true;
+  };
+}, []);
+ 
+const filteredSales = [...sales]
+  .sort(
+    (a, b) =>
+      new Date(b.createdAt || b.saleDate) -
+      new Date(a.createdAt || a.saleDate)
+  )
+  .filter((sale) => {
     const matchesProduct =
       !productName.trim() ||
       sale.items.some((item) =>
@@ -61,43 +70,47 @@ useEffect(() => {
 
     const saleDate = new Date(sale.saleDate);
 
-const saleDateIST = new Date(
-  saleDate.toLocaleString("en-US", {
-    timeZone: "Asia/Kolkata",
-  })
-);
+    const saleDateIST = new Date(
+      saleDate.toLocaleString("en-US", {
+        timeZone: "Asia/Kolkata",
+      })
+    );
 
-const saleDay = new Date(
-  saleDateIST.getFullYear(),
-  saleDateIST.getMonth(),
-  saleDateIST.getDate()
-);
+    const saleDay = new Date(
+      saleDateIST.getFullYear(),
+      saleDateIST.getMonth(),
+      saleDateIST.getDate()
+    );
 
-const fromDate = dateFrom
-  ? new Date(`${dateFrom}T00:00:00`)
-  : null;
+    const fromDate = dateFrom
+      ? new Date(`${dateFrom}T00:00:00`)
+      : null;
 
-const toDate = dateTo
-  ? new Date(`${dateTo}T00:00:00`)
-  : null;
+    const toDate = dateTo
+      ? new Date(`${dateTo}T00:00:00`)
+      : null;
 
-const matchesFrom = !fromDate || saleDay >= fromDate;
-const matchesTo = !toDate || saleDay <= toDate;
+    const matchesFrom = !fromDate || saleDay >= fromDate;
+    const matchesTo = !toDate || saleDay <= toDate;
 
-return matchesProduct && matchesFrom && matchesTo;
+    return matchesProduct && matchesFrom && matchesTo;
   });
 
-  setFilteredSales(filtered);
-}, [sales, productName, dateFrom, dateTo]);
 const totalPages = Math.ceil(filteredSales.length / salesPerPage);
 
-const startIndex = (currentPage - 1) * salesPerPage;
+const safeCurrentPage = Math.min(
+  currentPage,
+  Math.max(totalPages, 1)
+);
+
+const startIndex = (safeCurrentPage - 1) * salesPerPage;
 
 const paginatedSales = filteredSales.slice(
   startIndex,
   startIndex + salesPerPage
 );
-  const handleDeleteSale = async (id) => {
+
+const handleDeleteSale = async (id) => {
     if (!window.confirm("Are you sure you want to delete this sale?")) {
       return;
     }
@@ -118,7 +131,11 @@ const paginatedSales = filteredSales.slice(
 
       alert("Sale deleted successfully");
       setSelectedSale(null);
-      fetchSales();
+      const updatedSales = await fetchSales();
+
+if (updatedSales !== null) {
+  setSales(updatedSales);
+}
     } catch (error) {
       console.error("Error deleting sale:", error);
       alert(error.message);
@@ -151,7 +168,10 @@ const paginatedSales = filteredSales.slice(
       type="text"
       placeholder="Search product..."
       value={productName}
-      onChange={(e) => setProductName(e.target.value)}
+     onChange={(e) => {
+  setProductName(e.target.value);
+  setCurrentPage(1);
+}}
     />
   </div>
 
@@ -162,7 +182,10 @@ const paginatedSales = filteredSales.slice(
       type="date"
       value={dateFrom}
       max={dateTo || undefined}
-      onChange={(e) => setDateFrom(e.target.value)}
+      onChange={(e) => {
+  setDateFrom(e.target.value);
+  setCurrentPage(1);
+}}
     />
   </div>
 
@@ -173,7 +196,10 @@ const paginatedSales = filteredSales.slice(
       type="date"
       value={dateTo}
       min={dateFrom || undefined}
-      onChange={(e) => setDateTo(e.target.value)}
+      onChange={(e) => {
+  setDateTo(e.target.value);
+  setCurrentPage(1);
+}}
     />
   </div>
 
@@ -271,20 +297,20 @@ const paginatedSales = filteredSales.slice(
   <div>
     <button
       type="button"
-      disabled={currentPage === 1}
-      onClick={() => setCurrentPage((page) => page - 1)}
+      disabled={safeCurrentPage === 1}
+onClick={() => setCurrentPage(safeCurrentPage - 1)}
     >
       Previous
     </button>
 
     <span>
-      Page {currentPage} of {Math.max(totalPages, 1)}
+     Page {safeCurrentPage} of {Math.max(totalPages, 1)}
     </span>
 
     <button
       type="button"
-      disabled={currentPage >= totalPages}
-      onClick={() => setCurrentPage((page) => page + 1)}
+     disabled={safeCurrentPage >= totalPages}
+onClick={() => setCurrentPage(safeCurrentPage + 1)}
     >
       Next
     </button>
