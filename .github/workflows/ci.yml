@@ -1,13 +1,14 @@
+
 name: Stationery POS CI
 
 on:
   push:
-   branches:
-    - development
+    branches:
+      - development
 
   pull_request:
-   branches:
-     -main
+    branches:
+      - main
 
 jobs:
   frontend:
@@ -15,54 +16,51 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      -name: Checkout repository
-       uses: actions/checkout@4
-
-      -name: Setup Node.js
-       uses: actions/setup-node@v4
-       with:
-         node-version: 22
-         cache: npm
-         cache-dependency-path: frontend/frontend/package-lock.json
-
-
-        -name: Install dependencies
-         run: npm ci
-         working-directory: frontend/frontend
-
-        -name: Run ESLint
-         run: run lint
-         working-directory:frontend/frontend
-
-        -name: Build frontend
-         run: npm run build
-         working-directory: frontend/frontend
-
-  backend:
-     name: Backend CI
-     runs-on: ubuntu-latest
-
-
-     steps:
-       -name: Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      -name: Setup Node.js
-       uses:actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm 
+          cache: npm
+          cache-dependency-path: frontend/frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: frontend/frontend
+
+      - name: Run ESLint
+        run: npm run lint
+        working-directory: frontend/frontend
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: frontend/frontend
+
+  backend:
+    name: Backend CI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
           cache-dependency-path: backend/package-lock.json
 
-      -name: Install dependencies
-       run: npm ci
-       working-directory: backend
+      - name: Install dependencies
+        run: npm ci
+        working-directory: backend
 
-      -name: Check server syntax
-       run: node --check server.js
-       working-directory: backend
+      - name: Check server syntax
+        run: node --check server.js
+        working-directory: backend
 
-      -name: Check app syntax
-       run: node  --check app.js
-       working-directory: backend
-
+      - name: Check app syntax
+        run: node --check app.js
+        working-directory: backend
